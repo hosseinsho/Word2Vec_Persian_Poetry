@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head dir="rtl" lang="fr">
+    <meta charset="UTF-8">
+    <title>words vector</title>
+</head>
+<body>
+    <form action="/words/vector/" method="post">
+        {% csrf_token %}
+        <input type="text" name="word" required>
+        <input type="submit" value="show" class="btn btn-primary">
+    </form>
+    <br>
+    کلمات نمونه: جان, دل, چشم, سر, آب, نور, دست ,جهان
+    <script type="text/javascript">
+        var alert_message = "{{message}}";
+        if (alert_message){
+            alert(alert_message
+            )
+        }
+    </script>
+</body>
+</html>

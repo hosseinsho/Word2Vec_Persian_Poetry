@@ -243,3 +243,14 @@ def tsne_popular_words_3d_view(request):
                                     , perplexity=5, learning_rate=100, iteration=250)
         return HttpResponse("<h1>map will load soon in new tap. please wait a moment</h1>")
 
+
+def similar15_map_words(request):
+    if request.method == 'GET':
+        return render(request, 'similarity/get.html')
+
+    elif request.method == 'POST':
+        word = request.POST.get("word", None)
+        embeddings = np.load(embedding_dir)
+        display_tsne_scatterplot_3D([word], embeddings.files[:20], topn=16
+                                    , perplexity=5, learning_rate=100, iteration=250)
+        return HttpResponse("<h1>map will load soon in new tap. please wait a moment</h1>")

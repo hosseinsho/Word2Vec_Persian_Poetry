@@ -16,3 +16,4 @@ click-didyoumean==0.0.3
 click-plugins==1.1.1
 click-repl==0.1.6
 cryptography==35.0.0
+plotly==4.9.0

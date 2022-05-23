@@ -1,9 +1,14 @@
 import pickle
+import plotly
+import plotly.graph_objs as go
 import numpy as np
 import pandas as pd
 from django.shortcuts import render
 from sklearn.metrics.pairwise import cosine_distances
 from sklearn.metrics.pairwise import euclidean_distances
+
+from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
 
 embedding_dir = 'words/embeddings.npz'
 
@@ -88,10 +93,137 @@ def words_similarity(request):
             similar_words.append(
                 (sim_word, distance_two_words(embeddings[word], embeddings[sim_word], type_="cosine"))
             )
-        print(similar_words)
 
         context = {
             'word': word,
             "similar_words": similar_words
         }
         return render(request, 'similarity/post.html', context=context)
+
+
+def display_pca_scatterplot_3D(user_input=None, words=None, label=None, color_map=None, topn=5, sample=10):
+    embeddings = np.load(embedding_dir)
+    arrays = []
+    for item in embeddings.files:
+        arrays.append(embeddings[item])
+    weights = np.vstack(arrays)
+    three_dim = PCA(random_state=0).fit_transform(weights)[:, :3]
+
+    # For 2D, change the three_dim variable into something like two_dim like the following:
+    # two_dim = TSNE(n_components = 2, random_state=0, perplexity = perplexity, learning_rate = learning_rate, n_iter = iteration).fit_transform(word_vectors)[:,:2]
+
+    data = []
+    count = 0
+
+    for i in range(len(user_input)):
+        trace = go.Scatter3d(
+            x=three_dim[count:count + topn, 0],
+            y=three_dim[count:count + topn, 1],
+            z=three_dim[count:count + topn, 2],
+            text=words[count:count + topn],
+            name=user_input[i],
+            textposition="top center",
+            textfont_size=20,
+            mode='markers+text',
+            marker={
+                'size': 10,
+                'opacity': 0.8,
+                'color': 2
+            }
+
+        )
+
+        # For 2D, instead of using go.Scatter3d, we need to use go.Scatter and delete the z variable. Also, instead of using
+        # variable three_dim, use the variable that we have declared earlier (e.g two_dim)
+
+        data.append(trace)
+        count = count + topn
+
+
+    # Configure the layout
+
+    layout = go.Layout(
+        margin={'l': 0, 'r': 0, 'b': 0, 't': 0},
+        showlegend=True,
+        legend=dict(
+            x=1,
+            y=0.5,
+            font=dict(
+                family="Courier New",
+                size=25,
+                color="black"
+            )),
+        font=dict(
+            family=" Courier New ",
+            size=15),
+        autosize=False,
+        width=1000,
+        height=1000
+    )
+
+    plot_figure = go.Figure(data=data, layout=layout)
+    plot_figure.show()
+
+
+def display_tsne_scatterplot_3D(user_input=None, words=None, label=None, color_map=None, perplexity=0,
+                                learning_rate=0, iteration=0, topn=5, sample=10):
+    embeddings = np.load(embedding_dir)
+    arrays = []
+    for item in embeddings.files:
+        arrays.append(embeddings[item])
+    weights = np.vstack(arrays)
+    three_dim = TSNE(n_components=3, random_state=0, perplexity=perplexity, learning_rate=learning_rate,
+                     n_iter=iteration).fit_transform(weights)[:, :3]
+
+    # For 2D, change the three_dim variable into something like two_dim like the following:
+    # two_dim = TSNE(n_components = 2, random_state=0, perplexity = perplexity, learning_rate = learning_rate, n_iter = iteration).fit_transform(word_vectors)[:,:2]
+
+    data = []
+
+    count = 0
+    for i in range(len(user_input)):
+        trace = go.Scatter3d(
+            x=three_dim[count:count + topn, 0],
+            y=three_dim[count:count + topn, 1],
+            z=three_dim[count:count + topn, 2],
+            text=words[count:count + topn],
+            name=user_input[i],
+            textposition="top center",
+            textfont_size=20,
+            mode='markers+text',
+            marker={
+                'size': 10,
+                'opacity': 0.8,
+                'color': 2
+            }
+
+        )
+
+        # For 2D, instead of using go.Scatter3d, we need to use go.Scatter and delete the z variable. Also, instead of using
+        # variable three_dim, use the variable that we have declared earlier (e.g two_dim)
+
+        data.append(trace)
+        count = count + topn
+
+    layout = go.Layout(
+        margin={'l': 0, 'r': 0, 'b': 0, 't': 0},
+        showlegend=True,
+        legend=dict(
+            x=1,
+            y=0.5,
+            font=dict(
+                family="Courier New",
+                size=25,
+                color="black"
+            )),
+        font=dict(
+            family=" Courier New ",
+            size=15),
+        autosize=False,
+        width=1000,
+        height=1000
+    )
+
+    plot_figure = go.Figure(data=data, layout=layout)
+    plot_figure.show()
+

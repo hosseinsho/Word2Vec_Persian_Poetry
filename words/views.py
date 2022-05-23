@@ -4,6 +4,7 @@ import plotly.graph_objs as go
 import numpy as np
 import pandas as pd
 from django.shortcuts import render
+from django.http import HttpResponse
 from sklearn.metrics.pairwise import cosine_distances
 from sklearn.metrics.pairwise import euclidean_distances
 
@@ -226,4 +227,19 @@ def display_tsne_scatterplot_3D(user_input=None, words=None, label=None, color_m
 
     plot_figure = go.Figure(data=data, layout=layout)
     plot_figure.show()
+
+
+def pca_3d_view(request):
+    if request.method == 'GET':
+        embeddings = np.load(embedding_dir)
+        display_pca_scatterplot_3D(['جان'], embeddings.files, topn=len(embeddings.files))
+        return HttpResponse("<h1>map will load soon in new tap. please wait a moment</h1>")
+
+
+def tsne_popular_words_3d_view(request):
+    if request.method == 'GET':
+        embeddings = np.load(embedding_dir)
+        display_tsne_scatterplot_3D(['عقل', 'جان', 'چشم', 'سر', 'آب', 'نور', 'دست'], embeddings.files[:200]
+                                    , perplexity=5, learning_rate=100, iteration=250)
+        return HttpResponse("<h1>map will load soon in new tap. please wait a moment</h1>")
 
